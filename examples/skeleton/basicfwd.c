@@ -1,5 +1,6 @@
 /* SPDX-License-Identifier: BSD-3-Clause
  * Copyright(c) 2010-2015 Intel Corporation
+ * 这是一个单核实例，实现了一个最简单的报文收发示例，对报文不做处理，用于测试单核报文出入性能
  */
 
 #include <stdint.h>
@@ -28,6 +29,7 @@ static const struct rte_eth_conf port_conf_default = {
 /*
  * Initializes a given port using global settings and with the RX buffers
  * coming from the mbuf_pool passed as a parameter.
+ * 网口初始化
  */
 static inline int
 port_init(uint16_t port, struct rte_mempool *mbuf_pool)
@@ -55,7 +57,9 @@ port_init(uint16_t port, struct rte_mempool *mbuf_pool)
 		port_conf.txmode.offloads |=
 			DEV_TX_OFFLOAD_MBUF_FAST_FREE;
 
-	/* Configure the Ethernet device. */
+	/* Configure the Ethernet device. 
+	*  对端口设置接收、发送方向的队列数目，更具配置信息指定端口功能
+	*/
 	retval = rte_eth_dev_configure(port, rx_rings, tx_rings, &port_conf);
 	if (retval != 0)
 		return retval;
@@ -173,7 +177,9 @@ main(int argc, char *argv[])
 	unsigned nb_ports;
 	uint16_t portid;
 
-	/* Initialize the Environment Abstraction Layer (EAL). */
+	/* Initialize the Environment Abstraction Layer (EAL).
+	*  初始化环境
+	*/
 	int ret = rte_eal_init(argc, argv);
 	if (ret < 0)
 		rte_exit(EXIT_FAILURE, "Error with EAL initialization\n");
@@ -186,7 +192,9 @@ main(int argc, char *argv[])
 	if (nb_ports < 2 || (nb_ports & 1))
 		rte_exit(EXIT_FAILURE, "Error: number of ports must be even\n");
 
-	/* Creates a new mempool in memory to hold the mbufs. */
+	/* Creates a new mempool in memory to hold the mbufs. 
+	*  分配内存池
+	*/
 	mbuf_pool = rte_pktmbuf_pool_create("MBUF_POOL", NUM_MBUFS * nb_ports,
 		MBUF_CACHE_SIZE, 0, RTE_MBUF_DEFAULT_BUF_SIZE, rte_socket_id());
 
@@ -202,7 +210,9 @@ main(int argc, char *argv[])
 	if (rte_lcore_count() > 1)
 		printf("\nWARNING: Too many lcores enabled. Only 1 used.\n");
 
-	/* Call lcore_main on the master core only. */
+	/* Call lcore_main on the master core only. 
+	   调用主处理流程
+	*/
 	lcore_main();
 
 	return 0;

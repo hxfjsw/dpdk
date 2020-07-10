@@ -58,7 +58,7 @@ port_init(uint16_t port, struct rte_mempool *mbuf_pool)
 			DEV_TX_OFFLOAD_MBUF_FAST_FREE;
 
 	/* Configure the Ethernet device. 
-	*  对端口设置接收、发送方向的队列数目，更具配置信息指定端口功能
+	*  网口设置：对端口设置接收、发送方向的队列数目，更具配置信息指定端口功能
 	*/
 	retval = rte_eth_dev_configure(port, rx_rings, tx_rings, &port_conf);
 	if (retval != 0)
@@ -68,7 +68,9 @@ port_init(uint16_t port, struct rte_mempool *mbuf_pool)
 	if (retval != 0)
 		return retval;
 
-	/* Allocate and set up 1 RX queue per Ethernet port. */
+	/* Allocate and set up 1 RX queue per Ethernet port.
+	 * 队列初始化：对端口的某个队列，指定内存，描述符数量、报文缓冲区、并且对队列进行配置
+	*/
 	for (q = 0; q < rx_rings; q++) {
 		retval = rte_eth_rx_queue_setup(port, q, nb_rxd,
 				rte_eth_dev_socket_id(port), NULL, mbuf_pool);
@@ -86,12 +88,16 @@ port_init(uint16_t port, struct rte_mempool *mbuf_pool)
 			return retval;
 	}
 
-	/* Start the Ethernet port. */
+	/* Start the Ethernet port.
+	 * 启动端口
+	 */
 	retval = rte_eth_dev_start(port);
 	if (retval < 0)
 		return retval;
 
-	/* Display the port MAC address. */
+	/* Display the port MAC address. 
+	 * 打印端口MAC地址
+	 */
 	struct rte_ether_addr addr;
 	retval = rte_eth_macaddr_get(port, &addr);
 	if (retval != 0)
@@ -104,7 +110,9 @@ port_init(uint16_t port, struct rte_mempool *mbuf_pool)
 			addr.addr_bytes[2], addr.addr_bytes[3],
 			addr.addr_bytes[4], addr.addr_bytes[5]);
 
-	/* Enable RX in promiscuous mode for the Ethernet device. */
+	/* Enable RX in promiscuous mode for the Ethernet device. 
+	* 打开网卡的混杂模式，允许接收所有的网络数据报文 
+	*/
 	retval = rte_eth_promiscuous_enable(port);
 	if (retval != 0)
 		return retval;
